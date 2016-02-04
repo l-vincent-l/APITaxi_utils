@@ -54,7 +54,7 @@ class MarshalMixin(object):
             sqlalchemy_types.String: lambda c: custom_fields.String(column=c)
         }
     @classmethod
-    def marshall_obj(cls, show_all=False, filter_id=False, level=0):
+    def marshall_obj(cls, show_all=False, filter_id=False, level=0, api=None):
         if level == 2:
             return {}
         cls.inspect_obj = inspect(cls)
@@ -78,7 +78,7 @@ class MarshalMixin(object):
                 value = r.mapper.class_.marshall_obj(show_all, filter_id, level=level+1)
                 if len(value.keys()) == 0:
                     continue
-                return_dict[k] = fields_Nested(cls.api.model(k, value))
+                return_dict[k] = fields_Nested(api.model(k, value))
         return return_dict
 
 
