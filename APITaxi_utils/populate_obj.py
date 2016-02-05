@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import HistoryMixin
+from .mixins import HistoryMixin
 
 def create_obj_from_json(cls, json_obj):
     keys = [k for k in cls.__table__.columns if k.name not in HistoryMixin.to_exclude()]
