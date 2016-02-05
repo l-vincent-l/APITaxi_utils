@@ -43,10 +43,6 @@ cache_config = {
     'expiration_time': 60,
 }
 
-regions = dict(
-    default=make_region(key_mangler=md5_key_mangler).configure(**cache_config)
-)
-
 
 class CachingQuery(BaseQuery):
     """
@@ -54,8 +50,7 @@ class CachingQuery(BaseQuery):
     cache region.
     """
 
-    def __init__(self, regions, entities, *args, **kw):
-        self.cache_regions = regions
+    def __init__(self, entities, *args, **kw):
         BaseQuery.__init__(self, entities=entities, *args, **kw)
 
     def __iter__(self):
@@ -73,7 +68,8 @@ class CachingQuery(BaseQuery):
         Return a cache region plus key.
         """
 
-        dogpile_region = self.cache_regions[self._cache_region.region]
+        dogpile_region = current_app.extensions['dogpile_cache'].get_region(
+                self._cache_region.region)
         if self._cache_region.cache_key:
             key = self._cache_region.cache_key
         else:
@@ -128,8 +124,8 @@ class CachingQuery(BaseQuery):
         dogpile_region.set(cache_key, value)
 
 
-def query_callable(regions, query_cls=CachingQuery):
-  return functools.partial(query_cls, regions)
+def query_callable(query_cls=CachingQuery):
+  return functools.partial(query_cls)
 
 
 def _key_from_query(query, qualifier=None):
@@ -174,9 +170,8 @@ class FromCache(MapperOption):
 
 
 class Cache(object):
-    def __init__(self, model, regions, label):
+    def __init__(self, model, label):
         self.model = model
-        self.regions = regions
         self.label = label
         # allow custom pk or default to 'id'
         self.pk = getattr(model, 'cache_pk', 'id')
@@ -187,6 +182,10 @@ class Cache(object):
         Equivalent to the Model.query.get(pk) but using cache
         """
         return self.model.query.options(self.from_cache(pk=pk)).get(pk)
+
+    @property
+    def region(self):
+        return current_app.extensions['dogpile_cache'].get_region(self.label)
 
 
     def filter(self, order_by='asc', offset=None, limit=None, **kwargs):
@@ -205,12 +204,12 @@ class Cache(object):
             query_kwargs[key] = value
 
         cache_key = self._cache_key(**kwargs)
-        pks = self.regions[self.label].get(cache_key)
+        pks = self.region.get(cache_key)
 
         if pks is NO_VALUE:
             pks = [o.id for o in self.model.query.filter_by(**kwargs)\
                 .with_entities(getattr(self.model, self.pk))]
-            self.regions[self.label].set(cache_key, pks)
+            self.region.set(cache_key, pks)
 
         if order_by == 'desc':
             pks.reverse()
@@ -222,7 +221,7 @@ class Cache(object):
             pks = pks[:limit]
 
         keys = [self._cache_key(id) for id in pks]
-        for pos, obj in enumerate(self.regions[self.label].get_multi(keys)):
+        for pos, obj in enumerate(self.region.get_multi(keys)):
             if obj is NO_VALUE:
                 yield self.get(pks[pos])
             else:
@@ -233,7 +232,7 @@ class Cache(object):
         """
         flush the given key from dogpile.cache
         """
-        self.regions[self.label].delete(key)
+        self.region.delete(key)
 
 
     @memoize
@@ -284,7 +283,7 @@ class CacheableMixin(object):
         """
         Add the cache features to the model
         """
-        return Cache(cls, cls.cache_regions, cls.cache_label)
+        return Cache(cls, cls.cache_label)
 
 
     @staticmethod
@@ -307,7 +306,7 @@ class CacheableMixin(object):
 
 from psycopg2.extras import RealDictCursor
 def cache_in(sql_expression, ids, region_label, transform=lambda v: v,
-        transform_result=None, get_id=lambda v: v['id'], regions=None):
+        transform_result=None, get_id=lambda v: v['id']):
     def creator(*ids_c):
         ids_c = [i[1] for i in ids_c]
         cur = current_app.extensions['sqlalchemy'].db.session.connection().\
@@ -318,7 +317,7 @@ def cache_in(sql_expression, ids, region_label, transform=lambda v: v,
             res = transform_result(res)
         orders_res = {get_id(v):i for i, v in enumerate(res)}
         return [res[orders_res[id_]] if id_ in orders_res else None for id_ in ids_c]
-    region = regions[region_label]
+    region = current_app.extensions['dogpile_cache'].get_region(region_label)
     return region.get_or_create_multi([(region_label, i) for i in ids], creator)
 
 class CachedValue(object):
@@ -347,7 +346,8 @@ class CachedValue(object):
 
     @classmethod
     def get(cls, **kwargs):
-        return cls.regions[cls.base_class.cache_label].get_or_create(
-                cls.get_key(**kwargs),
-                cls.create(**kwargs)
-        )
+        return current_app.extensions['dogpile'].\
+                get_region(cls.base_class.cache_label).get_or_create(
+                    cls.get_key(**kwargs),
+                    cls.create(**kwargs)
+                )
