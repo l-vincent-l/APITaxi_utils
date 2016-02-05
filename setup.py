@@ -1,5 +1,4 @@
 from setuptools import find_packages, setup
-import APITaxi_utils
 from os import path
 from codecs import open
 
