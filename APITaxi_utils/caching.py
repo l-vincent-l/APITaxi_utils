@@ -346,7 +346,7 @@ class CachedValue(object):
 
     @classmethod
     def get(cls, **kwargs):
-        return current_app.extensions['dogpile'].\
+        return current_app.extensions['dogpile_cache'].\
                 get_region(cls.base_class.cache_label).get_or_create(
                     cls.get_key(**kwargs),
                     cls.create(**kwargs)
