@@ -94,7 +94,7 @@ class MarshalMixin(object):
 
 
 class HistoryMixin(MarshalMixin):
-    added_at = Column(sqlalchemy_types.DateTime)
+    added_at = Column(sqlalchemy_types.DateTime, default=datetime.utcnow)
     added_via = Column(sqlalchemy_types.Enum('form', 'api', name="sources"))
     source = Column(sqlalchemy_types.String(255), default='added_by')
     last_update_at = Column(sqlalchemy_types.DateTime, nullable=True)
