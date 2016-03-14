@@ -21,7 +21,10 @@ class FilterOr404Mixin(object):
     def filter_by_or_404(cls, **kwargs):
         message = kwargs.pop('message', 'Unable to find {} for {}'.format(
             cls.__tablename__, kwargs))
-        v = cls.query.filter_by(**kwargs).first()
+        query = cls.query.filter_by(**kwargs)
+        if hasattr(cls, 'added_at'):
+            query = query.order_by(cls.added_at.desc())
+        v = query.first()
         if not v:
             abort(404, message=message)
         return v
@@ -94,7 +97,7 @@ class MarshalMixin(object):
 
 
 class HistoryMixin(MarshalMixin):
-    added_at = Column(sqlalchemy_types.DateTime, default=datetime.utcnow)
+    added_at = Column(sqlalchemy_types.DateTime)
     added_via = Column(sqlalchemy_types.Enum('form', 'api', name="sources"))
     source = Column(sqlalchemy_types.String(255), default='added_by')
     last_update_at = Column(sqlalchemy_types.DateTime, nullable=True)
@@ -108,6 +111,7 @@ class HistoryMixin(MarshalMixin):
         self.added_via = 'form' if 'form' in request.url_rule.rule else 'api'
         self.source = 'added_by'
         self.added_by = current_user.id if not current_user.is_anonymous else None
+        self.added_at = datetime.utcnow()
 
     def can_be_deleted_by(self, user):
         return user.has_role("admin") or self.added_by == user.id
