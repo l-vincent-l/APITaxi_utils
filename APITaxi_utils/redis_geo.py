@@ -6,7 +6,7 @@ class GeoRedis(StrictRedis):
         return self.execute_command("geoadd {geoset} {lat} {lon} {id_}".format(
             geoset=geoset, lat=lat, lon=lon, id_=id_))
 
-    def georadius(self, geoset, lat, lon, radius=300, units='km',
+    def georadius(self, geoset, lat, lon, radius=15, units='km',
             withdistance=True, withcoordinates=True, withhash=False,
             withgeojson=False, withgeojsoncollection=False,
             noproperties=False, order='asc'):
