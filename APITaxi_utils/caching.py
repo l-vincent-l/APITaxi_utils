@@ -330,9 +330,9 @@ def cache_single(sql_expression, id_, region_label, transform=lambda v: v,
         res = map(lambda d: transform(d), cur.fetchall())
         if transform_result:
             res = transform_result(res)
-        return res
+        return (res,)
     region = current_app.extensions['dogpile_cache'].get_region(region_label)
-    return region.get_or_create_multi([(region_label, id_)], creator)
+    return region.get_or_create_multi([(region_label, id_)], creator)[0]
 
 class CachedValue(object):
     def __init__(self, v):
