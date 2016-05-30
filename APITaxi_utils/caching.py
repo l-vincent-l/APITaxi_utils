@@ -318,7 +318,7 @@ def cache_in(sql_expression, ids, region_label, transform=lambda v: v,
         orders_res = {get_id(v):i for i, v in enumerate(res)}
         return [res[orders_res[id_]] if id_ in orders_res else None for id_ in ids_c]
     region = current_app.extensions['dogpile_cache'].get_region(region_label)
-    return region.get_or_create_multi([(region_label, i) for i in ids], creator)
+    return region.get_or_create_multi([(region_label, unicode(i)) for i in ids], creator)
 
 def cache_single(sql_expression, id_, region_label, transform=lambda v: v,
         transform_result=None, get_id=lambda v: v['id']):
@@ -332,7 +332,7 @@ def cache_single(sql_expression, id_, region_label, transform=lambda v: v,
             res = transform_result(res)
         return (res,)
     region = current_app.extensions['dogpile_cache'].get_region(region_label)
-    return region.get_or_create_multi([(region_label, id_)], creator)[0]
+    return region.get_or_create_multi([(region_label, unicode(id_))], creator)[0]
 
 class CachedValue(object):
     def __init__(self, v):
