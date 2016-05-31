@@ -321,9 +321,9 @@ def cache_in(sql_expression, ids, region_label, transform=lambda v: v,
     return region.get_or_create_multi([(region_label, unicode(i)) for i in ids], creator)
 
 def cache_single(sql_expression, id_, region_label, transform=lambda v: v,
-        transform_result=None, get_id=lambda v: v['id']):
+        transform_result=None, get_id=lambda v: v[1]):
     def creator(region_id):
-        id_ = region_id[1]
+        id_ = get_id(region_id)
         cur = current_app.extensions['sqlalchemy'].db.session.connection().\
                 connection.cursor(cursor_factory=RealDictCursor)
         cur.execute(sql_expression, (id_))
