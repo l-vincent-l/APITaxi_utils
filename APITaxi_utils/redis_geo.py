@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from redis import StrictRedis
+from redis.exceptions import ResponseError
 
 class GeoRedis(StrictRedis):
     def geoadd(self, geoset, lat, lon, id_):
@@ -9,13 +10,13 @@ class GeoRedis(StrictRedis):
     def georadius(self, geoset, lat, lon, radius=15, units='km',
             withdistance=True, withcoordinates=True, withhash=False,
             withgeojson=False, withgeojsoncollection=False,
-            noproperties=False, order='asc'):
+            noproperties=False, order='asc', version=3.2):
         command = 'georadius {geoset} {lat} {lon} {radius} {units}'.format(
                 geoset=geoset, lat=lat, lon=lon, radius=radius, units=units)
         if withdistance:
-            command += ' withdistance'
+            command += ' withdist' if version == 3.2 else ' withdistance'
         if withcoordinates:
-            command += ' withcoordinates'
+            command += ' withcoord' if version == 3.2 else ' withcoordinates'
         if withhash:
             command += ' withhash'
         if withgeojson:
@@ -25,10 +26,23 @@ class GeoRedis(StrictRedis):
         if noproperties:
             command += ' noproperties'
         command += ' '+order
-        return self.execute_command(command)
+        try:
+            return self.execute_command(command)
+        except ResponseError as e:
+            if version != 3.2:
+                raise e
+            self.georadius(geoset, lat, lon, radius, units, withdistance,
+                withcoordinates, withhash, withgeojson, withgeojsoncollection,
+                noproperties, order, 2.8)
 
-    def geodecode(self, score):
-        return self.execute_command('geodecode {}'.format(score))
+    def geopos(self, key, *members):
+        try:
+            return self.execute_command('geopos {} {}'.format(key,
+                 " ".join(map(str, members))))
+        except ResponseError:
+            taxi_score = redis_store.zscore(current_app.config['REDIS_GEOINDEX'],
+                 '{}:{}'.format(hj['taxi_id'], operateur.email))
+            return r[0] if r else None
 
 
 
