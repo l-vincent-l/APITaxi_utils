@@ -40,7 +40,7 @@ class GeoRedis(StrictRedis):
             return self.execute_command('geopos {} {}'.format(key,
                  " ".join(map(str, members))))
         except ResponseError:
-            r = self.zscore(key,
+            taxi_score = self.zscore(key,
                  '{}'.format(" ".join(map(str, members))))
             r = self.geodecode(int(taxi_score)) if taxi_score else None
             return r[0] if r else None
