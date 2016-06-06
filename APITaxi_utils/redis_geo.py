@@ -45,7 +45,7 @@ class GeoRedis(StrictRedis):
             if not taxi_score:
                 return None
             r = self.execute_command('geodecode {}'.format(int(taxi_score)))
-            return r[0] if r else None
+            return r if r else None
 
 
 
