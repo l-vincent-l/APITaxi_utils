@@ -78,6 +78,8 @@ class MarshalMixin(object):
             for k, r in cls.inspect_obj.relationships.items():
                 if k.startswith("_"):
                     continue
+                if not show_all and hasattr(cls, 'public_relations') and k not in cls.public_relations:
+                    continue
                 value = r.mapper.class_.marshall_obj(show_all, filter_id, level=level+1)
                 if len(value.keys()) == 0:
                     continue
