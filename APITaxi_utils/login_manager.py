@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from flask.ext.security import Security
-from flask.ext.security.utils import verify_and_update_password
-from flask.ext.login import login_user, user_logged_out
+from flask_security import Security
+from flask_security.utils import verify_and_update_password
+from flask_login import login_user, user_logged_out
 
 def invalidate_user(sender, user, **extra):
     c = user.cache

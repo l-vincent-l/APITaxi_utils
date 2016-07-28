@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask.ext.restplus import Resource
+from flask_restplus import Resource
 from flask import jsonify
 class ResourceMetadata(Resource):
     def metadata(self):

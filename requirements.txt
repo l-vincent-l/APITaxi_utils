@@ -2,7 +2,7 @@ Cython==0.23.4
 dogpile==0.2.2
 dogpile.cache==0.5.7
 dogpile.core==0.4.1
-Flask==0.10.1
+Flask==0.11.1
 Flask-Login==0.3.2
 flask-restplus==0.8.5
 Flask-RESTful==0.3.5
