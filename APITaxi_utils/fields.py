@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask.ext.restplus import fields as basefields
+from flask_restplus import fields as basefields
 
 class FromSQLAlchemyColumnMixin(object):
     def __init__(self, *args, **kwargs):

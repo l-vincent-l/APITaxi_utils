@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #Source: http://flask.pocoo.org/snippets/45/
 
-from flask.ext.restful import request, abort
+from flask_restful import request, abort
 from functools import wraps
 
 def request_wants_json():

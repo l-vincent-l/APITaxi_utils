@@ -1,5 +1,5 @@
 #coding: utf-8
-from flask.ext.restplus import abort
+from flask_restplus import abort
 
 def Integer(options):
     def wrap(value):

@@ -1,7 +1,7 @@
 #coding: utf-8
 from jsonschema import Draft4Validator
 from jsonschema.exceptions import ValidationError
-from flask.ext.restplus import abort
+from flask_restplus import abort
 from werkzeug.utils import cached_property
 from ..api import api
 

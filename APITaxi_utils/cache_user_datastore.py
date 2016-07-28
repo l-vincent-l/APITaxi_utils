@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask.ext.security import  SQLAlchemyUserDatastore
+from flask_security import  SQLAlchemyUserDatastore
 
 class CacheUserDatastore(SQLAlchemyUserDatastore):
 

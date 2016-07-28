@@ -1,6 +1,6 @@
-from flask.ext.restplus import Api as baseApi
+from flask_restplus import Api as baseApi
 from jsonschema import RefResolver
-from flask.ext.restplus import Swagger
+from flask_restplus import Swagger
 from werkzeug.utils import cached_property
 from . import representations
 

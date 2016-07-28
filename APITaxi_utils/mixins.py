@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask.ext.security import current_user
+from flask_security import current_user
 from flask import request
 from sqlalchemy_defaults import Column
 from sqlalchemy import types as sqlalchemy_types
@@ -8,8 +8,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import inspect
 from datetime import datetime
 from . import fields as custom_fields
-from flask.ext.restplus.fields import Nested as fields_Nested
-from flask.ext.restplus import abort
+from flask_restplus.fields import Nested as fields_Nested
+from flask_restplus import abort
 
 class AsDictMixin(object):
     def as_dict(self):
