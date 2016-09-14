@@ -304,15 +304,13 @@ class CacheableMixin(object):
         event.listen(cls, 'before_update', cls._flush_event)
         event.listen(cls, 'before_insert', cls._flush_event)
 
-from psycopg2.extras import RealDictCursor
 def cache_in(sql_expression, ids, region_label, transform=lambda v: v,
         transform_result=None, get_id=lambda v: v['id']):
     def creator(*ids_c):
         ids_c = [i[1] for i in ids_c]
-        cur = current_app.extensions['sqlalchemy'].db.session.connection().\
-                connection.cursor(cursor_factory=RealDictCursor)
-        cur.execute(sql_expression, (tuple(ids_c),))
-        res = map(lambda d: transform(d), cur.fetchall())
+        r = current_app.extensions['sqlalchemy'].db.engine.execute(sql_expression,
+            [(tuple(ids_c),)]).fetchall()
+        res = map(lambda d: transform(dict(d)), r)
         if transform_result:
             res = transform_result(res)
         orders_res = {get_id(v):i for i, v in enumerate(res)}
@@ -324,10 +322,7 @@ def cache_single(sql_expression, id_, region_label, transform=lambda v: v,
         transform_result=None, get_id=lambda v: v[1]):
     def creator(region_id):
         id_ = get_id(region_id)
-        cur = current_app.extensions['sqlalchemy'].db.session.connection().\
-                connection.cursor(cursor_factory=RealDictCursor)
-        cur.execute(sql_expression, (id_))
-        res = map(lambda d: transform(d), cur.fetchall())
+        res = current_app.extensions['sqlalchemy'].db.engine.execute(sql_expression, (id_)).fetchall()
         if transform_result:
             res = transform_result(res)
         return (res,)
