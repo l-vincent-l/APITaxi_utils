@@ -7,5 +7,7 @@ def get_client(dbname=None):
     config = dict([(k, c.get('INFLUXDB_{}'.format(k.upper()), None)) for k in\
         ['host', 'port', 'username', 'password', 'ssl', 'verify_ssl', 'timeout',
             'use_udp', 'udp_port']])
+    if not config['host']:
+        return None
     config['database'] = dbname
     return InfluxDBClient(**config)
