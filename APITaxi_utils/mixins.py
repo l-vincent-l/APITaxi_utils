@@ -102,7 +102,8 @@ class HistoryMixin(MarshalMixin):
     added_at = Column(sqlalchemy_types.DateTime)
     added_via = Column(sqlalchemy_types.Enum('form', 'api', name="sources"))
     source = Column(sqlalchemy_types.String(255), default='added_by')
-    last_update_at = Column(sqlalchemy_types.DateTime, nullable=True)
+    last_update_at = Column(sqlalchemy_types.DateTime, nullable=True,
+                           onupdate=datetime.now)
 
     @classmethod
     def to_exclude(cls):
