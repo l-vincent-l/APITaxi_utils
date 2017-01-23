@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from flask_restful import reqparse, abort
+from flask_restful import abort
+from flask_restful.reqparse import RequestParser
 
-class DataJSONParser(reqparse.RequestParser):
+class DataJSONParser(RequestParser):
 
     def __init__(self, *args, **kwargs):
         self.max_length = kwargs.pop('max_length') if 'max_length' in kwargs else 1
