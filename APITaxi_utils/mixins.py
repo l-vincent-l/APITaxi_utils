@@ -144,7 +144,13 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
 
     key = (cls, hashfunc(*arg, **kw))
     if key in cache:
-        return cache[key]
+        obj = cache[key]
+        for k, v in kw.iteritems():
+            try:
+                setattr(obj, k, v)
+            except AttributeError:
+                pass
+        return obj
     else:
         with session.no_autoflush:
             q = session.query(cls)
