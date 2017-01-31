@@ -21,4 +21,4 @@ def create_obj_from_json(cls, json_obj, obj=None):
     return cls(**{k: json_obj[k] for k in map(lambda k: unicode(k), keys)
                   if k in json_obj
                  }
-              )
+    )

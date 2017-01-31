@@ -40,6 +40,7 @@ class GetOr404Mixin(object):
 
 
 class MarshalMixin(object):
+
     inspect_obj = None
     map_ = {
             sqlalchemy_types.Integer: lambda c: custom_fields.Integer(column=c),
@@ -56,6 +57,8 @@ class MarshalMixin(object):
                        enum=c.type.enums),
             sqlalchemy_types.String: lambda c: custom_fields.String(column=c)
         }
+
+
     @classmethod
     def marshall_obj(cls, show_all=False, filter_id=False, level=0, api=None):
         if level == 2:
@@ -100,7 +103,7 @@ class MarshalMixin(object):
 
 class HistoryMixin(MarshalMixin):
     added_at = Column(sqlalchemy_types.DateTime)
-    added_via = Column(sqlalchemy_types.Enum('form', 'api', name="sources"))
+    added_via = Column(sqlalchemy_types.Enum('form', 'api', name="sources"), default='api')
     source = Column(sqlalchemy_types.String(255), default='added_by')
     last_update_at = Column(sqlalchemy_types.DateTime, nullable=True,
                            onupdate=datetime.now)
