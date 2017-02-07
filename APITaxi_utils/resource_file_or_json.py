@@ -10,7 +10,7 @@ from APITaxi_utils.slack import slack as slacker
 class ResourceFileOrJSON(Resource):
 
     def post(self):
-        if request.is_json():
+        if request.is_json:
             return self.post_json()
         elif 'file' in request.files:
             return self.post_file()
