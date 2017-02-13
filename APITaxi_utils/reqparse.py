@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from flask_restful import abort
+from flask_restful import abort, marshal
 from flask_restful.reqparse import RequestParser
 
 class DataJSONParser(RequestParser):
 
-    def __init__(self, *args, **kwargs):
-        self.max_length = kwargs.pop('max_length') if 'max_length' in kwargs else 1
-        self.min_length = kwargs.pop('min_length') if 'min_length' in kwargs else 0
+    def __init__(self, max_length=1, min_length=0, filter_=None, *args, **kwargs):
+        self.max_length, self.min_length = max_length, min_length
+        self.filter_ = filter_
         super(DataJSONParser, self).__init__(*args, **kwargs)
         self.add_argument("data", location="json", required=True,
                          type=self.check_data, nullable=False, ignore=True)
@@ -22,4 +22,7 @@ class DataJSONParser(RequestParser):
         return value
 
     def get_data(self):
-        return self.parse_args()['data']
+        if self.filter_ is None:
+            return self.parse_args()['data']
+        else:
+            return marshal(self.parse_args(), self.filter_)['data']
