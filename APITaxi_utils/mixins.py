@@ -76,7 +76,6 @@ class MarshalMixin(object):
                            cls.map_[type(c.type)](c)),
                          fields_cls)
         return_dict = dict(fields_cls)
-
         if cls.inspect_obj.relationships:
             for k, r in cls.inspect_obj.relationships.items():
                 if k.startswith("_"):
