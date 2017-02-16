@@ -3,7 +3,7 @@ from .mixins import HistoryMixin
 
 def create_obj_from_json(cls, json_obj, obj=None):
     cols = [k for k in cls.__table__.columns
-            if k.name not in HistoryMixin.to_exclude()
+            if k.name not in cls.to_exclude()
     ]
     if hasattr(cls, '_additionnal_columns'):
         cols += cls._additionnal_columns
