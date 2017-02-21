@@ -194,7 +194,7 @@ def unique_constructor(scoped_session, hashfunc, queryfunc):
 
         # note: cls must be already mapped for this part to work
         cls._init = cls.__init__
-        cls.__init__ = _null_init
+        #cls.__init__ = _null_init
         cls.__new__ = classmethod(__new__)
         return cls
 

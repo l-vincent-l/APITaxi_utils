@@ -19,6 +19,7 @@ class FromSQLAlchemyColumnMixin(object):
 class Integer(FromSQLAlchemyColumnMixin, basefields.Integer):
     pass
 
+
 class Boolean(FromSQLAlchemyColumnMixin, basefields.Boolean):
     pass
 
@@ -31,8 +32,10 @@ class DateTime(FromSQLAlchemyColumnMixin, basefields.DateTime):
 class Float(FromSQLAlchemyColumnMixin, basefields.Float):
     pass
 
+
 class String(FromSQLAlchemyColumnMixin, basefields.String):
     pass
+
 
 class Nested(FromSQLAlchemyColumnMixin, basefields.Nested):
     pass
@@ -61,7 +64,9 @@ class Date(FromSQLAlchemyColumnMixin, basefields.Raw):
     def output(self, key, value):
         if isinstance(value, dict):
             value = value[key]
-        if isinstance(value, str):
+        if isinstance(value, basestring):
             return value
         date = getattr(value, key)
+        if isinstance(date, basestring):
+            return date
         return date.isoformat() if date else None
