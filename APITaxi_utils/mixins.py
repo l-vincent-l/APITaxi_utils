@@ -18,10 +18,13 @@ class AsDictMixin(object):
 
 class FilterOr404Mixin(object):
     @classmethod
-    def filter_by_or_404(cls, **kwargs):
+    def filter_by_or_404(cls, *args, **kwargs):
         message = kwargs.pop('message', 'Unable to find {} for {}'.format(
             cls.__tablename__, kwargs))
-        query = cls.query.filter_by(**kwargs)
+        if args:
+            query = cls.query.filter(*args, **kwargs)
+        else:
+            query = cls.query.filter_by(**kwargs)
         if hasattr(cls, 'added_at'):
             query = query.order_by(cls.added_at.desc())
         v = query.first()
