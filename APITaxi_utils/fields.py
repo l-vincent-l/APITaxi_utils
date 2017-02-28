@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields as basefields
 from sqlalchemy.sql.schema import ColumnDefault
+import aniso8601
+from six import string_types
 
 class FromSQLAlchemyColumnMixin(object):
     def __init__(self, *args, **kwargs):
@@ -58,15 +60,19 @@ class Date(FromSQLAlchemyColumnMixin, basefields.Raw):
             'readOnly': self.readonly,
         }
 
-    def format(self):
-        return self.isoformat()
-
-    def output(self, key, value):
-        if isinstance(value, dict):
-            value = value[key]
-        if isinstance(value, basestring):
+    def parse(self, value):
+        if value is None:
+            return None
+        elif isinstance(value, string_types):
+            return aniso8601.parse_date(value)
+        elif isinstance(value, datetime):
+            return value.date()
+        elif isinstance(value, date):
             return value
-        date = getattr(value, key)
-        if isinstance(date, basestring):
-            return date
-        return date.isoformat() if date else None
+        else:
+            raise ValueError('Unsupported Date format')
+
+    def format(self, value):
+        if isinstance(value, string_types):
+            return value
+        return value.isoformat()
