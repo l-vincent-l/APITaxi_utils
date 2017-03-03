@@ -155,6 +155,7 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
                 setattr(obj, k, v)
             except AttributeError:
                 pass
+        session.add(obj)
         return obj
     else:
         with session.no_autoflush:
@@ -163,7 +164,13 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
             obj = q.first()
             if not obj:
                 obj = constructor(*arg, **kw)
-                session.add(obj)
+            else:
+                for k, v in kw.iteritems():
+                    try:
+                        setattr(obj, k, v)
+                    except AttributeError:
+                        pass
+            session.add(obj)
         cache[key] = obj
         return obj
 
@@ -197,7 +204,7 @@ def unique_constructor(scoped_session, hashfunc, queryfunc):
 
         # note: cls must be already mapped for this part to work
         cls._init = cls.__init__
-        #cls.__init__ = _null_init
+        cls.__init__ = _null_init
         cls.__new__ = classmethod(__new__)
         return cls
 
