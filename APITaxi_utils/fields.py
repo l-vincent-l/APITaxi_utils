@@ -3,6 +3,7 @@ from flask_restplus import fields as basefields
 from sqlalchemy.sql.schema import ColumnDefault
 import aniso8601
 from six import string_types
+from datetime import datetime, date
 
 class FromSQLAlchemyColumnMixin(object):
     def __init__(self, *args, **kwargs):
@@ -64,6 +65,8 @@ class Date(FromSQLAlchemyColumnMixin, basefields.Raw):
         if value is None:
             return None
         elif isinstance(value, string_types):
+            if "T" in value:
+                value = value[:value.find('T')]
             return aniso8601.parse_date(value)
         elif isinstance(value, datetime):
             return value.date()
@@ -73,6 +76,8 @@ class Date(FromSQLAlchemyColumnMixin, basefields.Raw):
             raise ValueError('Unsupported Date format')
 
     def format(self, value):
-        if isinstance(value, string_types):
-            return value
+        try:
+            value = self.parse(value)
+        except (AttributeError, ValueError) as e:
+            raise KeyError("Bad date")
         return value.isoformat()
