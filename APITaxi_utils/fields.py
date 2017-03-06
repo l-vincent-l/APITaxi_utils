@@ -17,9 +17,12 @@ class FromSQLAlchemyColumnMixin(object):
                 if isinstance(self.default, ColumnDefault):
                     self.default = self.default.arg
             if not self.required:
-                self.__schema_type__ = [self.__schema_type__, "null"]
+                if not isinstance(self.__schema_type__, list):
+                    self.__schema_type__ = [self.__schema_type__]
+                self.__schema_type__.append("null")
 
 class Integer(FromSQLAlchemyColumnMixin, basefields.Integer):
+    __schema_type__ = ['string', 'integer']
     pass
 
 
@@ -33,6 +36,7 @@ class DateTime(FromSQLAlchemyColumnMixin, basefields.DateTime):
 
 
 class Float(FromSQLAlchemyColumnMixin, basefields.Float):
+    __schema_type__ = ['string', 'number']
     pass
 
 
