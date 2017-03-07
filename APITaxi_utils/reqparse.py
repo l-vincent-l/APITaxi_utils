@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restful import abort, marshal
 from flask_restful.reqparse import RequestParser
+from collections import OrderedDict
 
 class DataJSONParser(RequestParser):
 
@@ -25,4 +26,16 @@ class DataJSONParser(RequestParser):
         if self.filter_ is None:
             return self.parse_args()['data']
         else:
-            return marshal(self.parse_args(), self.filter_)['data']
+            return self.filter(marshal(self.parse_args(), self.filter_), self.parse_args())['data']
+
+    @classmethod
+    def filter(cls, d1, d2):
+        if isinstance(d1, list):
+            return [cls.filter(*v) for v in zip(d1, d2)]
+        return OrderedDict(
+                ((k,cls.filter(v, d2[k]) if isinstance(v, dict) or isinstance(v, list) else v)
+                for k, v in d1.items()
+                if k in d2)
+        )
+
+
