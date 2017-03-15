@@ -1,6 +1,7 @@
 #coding: utf-8
 from flask import current_app
 from influxdb import InfluxDBClient
+from datetime import datetime
 
 def get_client(dbname=None):
     c = current_app.config
@@ -11,3 +12,19 @@ def get_client(dbname=None):
         return None
     config['database'] = dbname
     return InfluxDBClient(**config)
+
+def write_point(db, measurement, tags):
+    client = get_client(db)
+    if not client:
+        return
+    try:
+        client.write_points([{
+            "measurement": measurement,
+            "tags": tags,
+            "time": datetime.utcnow().strftime('%Y%m%dT%H:%M:%SZ'),
+            "fields": {
+                "value": 1
+            }
+            }])
+    except Exception as e:
+        current_app.logger.error('Influxdb Error: {}'.format(e))
