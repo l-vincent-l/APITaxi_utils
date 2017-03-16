@@ -129,7 +129,7 @@ class HistoryMixin(MarshalMixin):
 
     @classmethod
     def can_be_listed_by(cls, user):
-        return user.has_role("admin") or user.has_role("operateur")
+        return user.has_role("admin") or user.has_role("operateur") or user.has_role("prefecture")
 
 
     def showable_fields(self, user):
