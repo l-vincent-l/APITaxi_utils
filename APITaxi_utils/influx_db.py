@@ -13,7 +13,7 @@ def get_client(dbname=None):
     config['database'] = dbname
     return InfluxDBClient(**config)
 
-def write_point(db, measurement, tags):
+def write_point(db, measurement, tags, value=1):
     client = get_client(db)
     if not client:
         return
@@ -23,7 +23,7 @@ def write_point(db, measurement, tags):
             "tags": tags,
             "time": datetime.utcnow().strftime('%Y%m%dT%H:%M:%SZ'),
             "fields": {
-                "value": 1
+                "value": value
             }
             }])
     except Exception as e:
