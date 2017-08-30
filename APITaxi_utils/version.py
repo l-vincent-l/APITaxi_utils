@@ -2,7 +2,7 @@
 from flask import request, g, abort
 from .request_wants_json import request_wants_json
 
-valid_versions = ['1', '2']
+valid_versions = ['1', '2', '3']
 def check_version(sender, **extra):
     if not request_wants_json():
         return
