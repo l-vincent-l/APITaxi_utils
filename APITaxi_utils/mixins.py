@@ -34,8 +34,8 @@ class FilterOr404Mixin(object):
 
 class GetOr404Mixin(object):
     @classmethod
-    def get_or_404(cls, id_):
-        v = cls.cache.get(id_)
+    def get_or_404(cls, id_, cache=True):
+        v = cls.cache.get(id_) if cache else cls.query.get(id_)
         if not v:
             message = 'Unable to find {} with id {}'.format(cls.__tablename__, id_)
             abort(404, message=message)
