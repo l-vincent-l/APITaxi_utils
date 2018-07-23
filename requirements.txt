@@ -13,7 +13,7 @@ Flask-WTF==0.12
 influxdb==2.10.0
 jsonschema==2.5.1
 msgpack-python==0.4.6
-redis==2.10.5
+redis==2.10.6
 slacker==0.8.6
 shortuuid==0.4.2
 SQLAlchemy-Defaults==0.4.4
