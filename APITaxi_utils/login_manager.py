@@ -3,13 +3,6 @@ from flask_security import Security
 from flask_security.utils import verify_and_update_password
 from flask_login import login_user, user_logged_out
 
-def invalidate_user(sender, user, **extra):
-    c = user.cache
-    c.flush(c._cache_key(user.id))
-    c.flush(c._cache_key(unicode(user.id)))
-    c.flush(c._cache_key(**{"email":user.email}))
-    c.flush(c._cache_key(**{"apikey":user.apikey}))
-
 def init_app(app, user_datastore, LoginForm):
     def load_user(user_id):
         return user_datastore.get_user(user_id)
@@ -35,4 +28,3 @@ def init_app(app, user_datastore, LoginForm):
     security.init_app(app, user_datastore, login_form=LoginForm)
     app.login_manager.request_loader(load_user_from_request)
     app.login_manager.user_loader(load_user)
-    user_logged_out.connect(invalidate_user)
