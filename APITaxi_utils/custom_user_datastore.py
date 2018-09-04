@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_security import  SQLAlchemyUserDatastore
 
-class CacheUserDatastore(SQLAlchemyUserDatastore):
+class CustomUserDatastore(SQLAlchemyUserDatastore):
 
     def __init__(self, db = None, user_model=None, role_model=None):
         self.init_app(db, user_model, role_model)
