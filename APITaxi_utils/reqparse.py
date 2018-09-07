@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask_restful import abort, marshal
-from flask_restful.reqparse import RequestParser
+from flask_restplus import abort, marshal
+from flask_restplus.reqparse import RequestParser
 from collections import OrderedDict
 
 class DataJSONParser(RequestParser):
