@@ -6,8 +6,18 @@ from APITaxi_utils.request_wants_json import request_wants_json
 from datetime import datetime
 from APITaxi_utils.slack import slack as slacker
 
-
 class ResourceFileOrJSON(Resource):
+
+    def dispatch_request(self, *args, **kwargs):
+        if not request.is_json:
+            before = self.post.__apidoc__['validate']
+            self.post.__apidoc__['validate'] = False
+
+        resp = super(ResourceFileOrJSON, self).dispatch_request(*args, **kwargs)
+
+        if not request.is_json:
+            self.post.__apidoc__['validate'] = before
+        return resp
 
     def post(self):
         if request.is_json:
@@ -16,7 +26,6 @@ class ResourceFileOrJSON(Resource):
             return self.post_file()
         else:
             abort(400, message="Unable to find file")
-
 
     def post_file(self):
         filename = "{}-{}-{}.csv".format(self.filetype, current_user.email,

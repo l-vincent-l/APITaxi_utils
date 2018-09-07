@@ -19,7 +19,8 @@ class FromSQLAlchemyColumnMixin(object):
             if not self.required:
                 if not isinstance(self.__schema_type__, list):
                     self.__schema_type__ = [self.__schema_type__]
-                self.__schema_type__.append("null")
+                if "null" not in self.__schema_type__:
+                    self.__schema_type__.append("null")
 
 class Integer(FromSQLAlchemyColumnMixin, basefields.Integer):
     __schema_type__ = ['string', 'integer']
