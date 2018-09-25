@@ -19,9 +19,9 @@ class CustomUserDatastore(SQLAlchemyUserDatastore):
         return self.find_user(**filter_)
 
     def find_user(self, **kwargs):
-        if kwargs.keys()[0] == 'id':
+        if 'id' in kwargs:
             return self.user_model.query.get(kwargs['id'])
-        elif kwargs.keys()[0] == 'apikey':
+        elif 'apikey' in kwargs:
             return self.user_model.query.filter_by(**kwargs).first()
         try:
             return self.user_model.query.filter_by(**kwargs).first()

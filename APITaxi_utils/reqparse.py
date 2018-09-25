@@ -14,7 +14,7 @@ class DataJSONParser(RequestParser):
 
     def check_data(self, value):
         if not isinstance(value, list) or\
-           not all(map(lambda v: isinstance(v, dict), value)):
+           not all([isinstance(v, dict) for v in value]):
             raise ValueError("data must contain a list of objects")
         if len(value) > self.max_length:
             raise ValueError("data must contain at must {} object".format(self.max_length))
@@ -34,7 +34,7 @@ class DataJSONParser(RequestParser):
             return [cls.filter(*v) for v in zip(d1, d2)]
         return OrderedDict(
                 ((k,cls.filter(v, d2[k]) if isinstance(v, dict) or isinstance(v, list) else v)
-                for k, v in d1.items()
+                for k, v in list(d1.items())
                 if k in d2)
         )
 
