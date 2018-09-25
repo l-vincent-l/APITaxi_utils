@@ -34,8 +34,8 @@ class FilterOr404Mixin(object):
 
 class GetOr404Mixin(object):
     @classmethod
-    def get_or_404(cls, id_, cache=True):
-        v = cls.cache.get(id_) if cache else cls.query.get(id_)
+    def get_or_404(cls):
+        v = cls.query.get(id_)
         if not v:
             message = 'Unable to find {} with id {}'.format(cls.__tablename__, id_)
             abort(404, message=message)
@@ -69,24 +69,23 @@ class MarshalMixin(object):
         cls.inspect_obj = inspect(cls)
         fields_cls = cls.list_fields()
         if not show_all and hasattr(cls, 'public_fields'):
-            fields_cls = filter(lambda f: f.name in cls.public_fields, fields_cls)
+            fields_cls = [f for f in fields_cls if f.name in cls.public_fields]
 
         def to_keep(c):
             return not c.primary_key and len(c.foreign_keys) == 0\
-                        and type(c.type) in cls.map_.keys()
-        fields_cls = filter(to_keep, fields_cls)
-        fields_cls = map(lambda c: (c.name,
-                           cls.map_[type(c.type)](c)),
-                         fields_cls)
+                        and type(c.type) in list(cls.map_.keys())
+        fields_cls = list(filter(to_keep, fields_cls))
+        fields_cls = [(c.name,
+                           cls.map_[type(c.type)](c)) for c in fields_cls]
         return_dict = dict(fields_cls)
         if cls.inspect_obj.relationships:
-            for k, r in cls.inspect_obj.relationships.items():
+            for k, r in list(cls.inspect_obj.relationships.items()):
                 if k.startswith("_"):
                     continue
                 if not show_all and hasattr(cls, 'public_relations') and k not in cls.public_relations:
                     continue
                 value = r.mapper.class_.marshall_obj(show_all, filter_id, level=level+1)
-                if len(value.keys()) == 0:
+                if len(list(value.keys())) == 0:
                     continue
                 return_dict[k] = fields_Nested(api.model(k, value))
         return return_dict
@@ -98,7 +97,7 @@ class MarshalMixin(object):
             cls.inspect_obj = inspect(cls).columns
         columns = list(cls.inspect_obj.columns)
         if hasattr(cls, 'to_exclude'):
-            columns = filter(lambda c: c.name not in cls.to_exclude(), columns)
+            columns = [c for c in columns if c.name not in cls.to_exclude()]
         return columns
 
 
@@ -112,8 +111,8 @@ class HistoryMixin(MarshalMixin):
 
     @classmethod
     def to_exclude(cls):
-        columns = filter(lambda f: isinstance(getattr(HistoryMixin, f), Column), HistoryMixin.__dict__.keys())
-        return columns
+        columns = [f for f in list(HistoryMixin.__dict__.keys()) if isinstance(getattr(HistoryMixin, f), Column)]
+        return list(columns)
 
     def __init__(self):
         self.added_via = 'form' if 'form' in request.url_rule.rule else 'api'
@@ -150,7 +149,7 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
     key = (cls, hashfunc(*arg, **kw))
     if key in cache:
         obj = cache[key]
-        for k, v in kw.iteritems():
+        for k, v in list(kw.items()):
             try:
                 setattr(obj, k, v)
             except AttributeError:
@@ -165,7 +164,7 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
             if not obj:
                 obj = constructor(*arg, **kw)
             else:
-                for k, v in kw.iteritems():
+                for k, v in kw.items():
                     try:
                         setattr(obj, k, v)
                     except AttributeError:

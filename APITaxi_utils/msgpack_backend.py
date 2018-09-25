@@ -25,7 +25,7 @@ class _EncodedProxy(ProxyBackend):
            called by `get_or_create_multi`
            """
         mapping_set = {}
-        for (k, v) in mapping.iteritems():
+        for (k, v) in mapping.items():
             mapping_set[k] = self.value_encode(v)
         return self.proxied.set_multi(mapping_set)
 

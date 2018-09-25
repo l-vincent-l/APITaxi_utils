@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from flask import make_response, current_app
 from ultrajson import dumps
 

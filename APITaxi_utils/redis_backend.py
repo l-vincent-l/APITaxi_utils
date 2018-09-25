@@ -24,6 +24,6 @@ class RedisWithoutPickleBackend(Redis):
             self.client.mset(mapping)
         else:
             pipe = self.client.pipeline()
-            for key, value in mapping.items():
+            for key, value in list(mapping.items()):
                 pipe.setex(key, self.redis_expiration_time, value)
             pipe.execute()
