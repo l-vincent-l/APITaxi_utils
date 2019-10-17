@@ -1,31 +1,67 @@
 from setuptools import find_packages, setup
-import APITaxi_utils
-from os import path
-from codecs import open
+import os
+import re
 
-HERE = path.abspath(path.dirname(__file__))
 
-def is_pkg(line):
-    return line and not line.startswith(('--', 'git', '#'))
+PACKAGE = 'APITaxi_utils'
 
-with open(path.join(HERE, 'requirements.txt'), encoding='utf-8') as reqs:
-    install_requires = [l for l in reqs if is_pkg(l)]
+DEPENDENCIES = [
+    'aniso8601',
+    'Flask',
+    'Flask-Login',
+    'flask-restplus',
+    'Flask-Security',
+    'Flask-SQLAlchemy',
+    'Flask-WTF',
+    'influxdb',
+    'jsonschema',
+    'msgpack-python',
+    'redis',
+    'slacker',
+    'shortuuid',
+    'SQLAlchemy-Defaults',
+    'ujson',
+    'WTForms-Alchemy',
+    'WTForms-Components',
+]
+
+
+def get_pkgvar(name):
+    """Get the value of :param name: from __init__.py.
+
+    The package cannot be imported since dependencies might not be installed
+    yet."""
+    here = os.path.abspath(os.path.dirname(__file__))
+    init_path = os.path.join(here, PACKAGE, '__init__.py')
+
+    # Cache file content into get_pkgvar.init_content to avoid reading the
+    # __init__.py file several times.
+    if not hasattr(get_pkgvar, 'init_content'):
+        with open(init_path) as handle:
+            get_pkgvar.init_content = handle.read().splitlines()
+
+    for line in get_pkgvar.init_content:
+        res = re.search(r'^%s\s*=\s*["\'](.*)["\']' % name, line)
+        if res:
+            return res.groups()[0]
+
+    raise ValueError('%s not found in %s' % (name, init_path))
 
 
 setup(
-    name='APITaxi_utils',
-    version=APITaxi_utils.__version__,
-    description=APITaxi_utils.__doc__,
-    url=APITaxi_utils.__homepage__,
-    author=APITaxi_utils.__author__,
-    author_email=APITaxi_utils.__contact__,
+    name=PACKAGE,
+    version=get_pkgvar('__version__'),
+    description=get_pkgvar('__doc__'),
+    url=get_pkgvar('__homepage__'),
+    author=get_pkgvar('__author__'),
+    author_email=get_pkgvar('__contact__'),
     license='MIT',
     classifiers=[
         'Development Status :: 4 Beta',
         'Intended Audience :: Developpers',
-        'Programming Language :: Python :: 2.7'
-        ],
+        'Programming Language :: Python :: 3'
+    ],
     keywords='taxi transportation',
     packages=find_packages(),
-    install_requires=install_requires
+    install_requires=DEPENDENCIES
 )
