@@ -9,7 +9,13 @@ DEPENDENCIES = [
     'aniso8601',
     'Flask',
     'Flask-Login',
-    'flask-restplus',
+    # Pin flask-restplus version because of a change in exception handling
+    # between flast-restplus 0.12.1 and 0.13.0.
+    # https://github.com/noirbizarre/flask-restplus/commit/0d95bcacdc5d347d003c1c4d8a613cd087ac6785
+    # With <=0.12.1, base exceptions raised in debug mode return a JSON
+    # response.
+    # With >=0.13.0, the traditional HTTP/500 HTML error page is returned.
+    'flask-restplus==0.12.1',
     'Flask-Security',
     'Flask-SQLAlchemy',
     'Flask-WTF',
